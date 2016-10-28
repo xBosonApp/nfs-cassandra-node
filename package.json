@@ -1,0 +1,15 @@
+{
+  "name": "fs-cassandra",
+  "version": "0.1.1",
+  "description": "like file system(fs) implemented based on Cassandra",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "none"
+  },
+  "author": "yanming",
+  "license": "ISC"
+}
