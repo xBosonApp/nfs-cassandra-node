@@ -7,12 +7,15 @@ function get_cql(ks) {
 return [
   "CREATE KEYSPACE IF NOT EXISTS " + ks + " WITH REPLICATION =\
       { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };",
-      
+
   "use " + ks,
-  
+
   "CREATE TABLE IF NOT EXISTS driver_main (\
-      id        uuid PRIMARY KEY, \
-      create_tm bigint, \
+      id          uuid PRIMARY KEY, \
+      create_tm   bigint,     \
+      note        text,       \
+      open_client set<text>,  \
+      root        uuid,       \
   );",
 ];
 }
@@ -22,7 +25,7 @@ conlib.wait_init(function() {
   var conf = conlib.load();
   var ks = conf.cassandra.keyspace;
   delete conf.cassandra.keyspace;
-  
+
   var client = new cassandra.Client(conf.cassandra);
   tool.do_cql(client, get_cql(ks), function(err, res) {
     if (err) {

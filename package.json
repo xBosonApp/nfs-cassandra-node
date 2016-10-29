@@ -4,7 +4,7 @@
   "description": "like file system(fs) implemented based on Cassandra",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node test/index.js",
     "install": "node install.js"
   },
   "repository": {
@@ -15,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "configuration-lib": "^0.2.2",
-    "logger-lib": "^0.3.3"
+    "logger-lib": "^0.3.3",
+    "uuid": "^2.0.2"
   }
 }
