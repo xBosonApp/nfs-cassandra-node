@@ -14,8 +14,12 @@ return [
       id          uuid PRIMARY KEY, \
       create_tm   bigint,     \
       note        text,       \
-      open_client set<text>,  \
       root        uuid,       \
+  );",
+
+  "CREATE TABLE IF NOT EXISTS driver_ref (\
+      id          uuid PRIMARY KEY, \
+      ref         counter           \
   );",
 ];
 }
