@@ -6,7 +6,7 @@ fs api version on nodejs <=0.12.x
 每个硬盘都格式化成 ext4 格式, 可以在硬盘上打开文件系统(fs)进行操作.
 应该给 fs 一个独立的 keyspace.
 
-0.1.x 实现不支持用户权限/组权限, 不支持符号链接
+0.1.x 实现不支持用户权限/组权限, 不支持(软/硬)符号链接
 
 
 # install
@@ -73,4 +73,4 @@ driver.open_fs('driver-id', function(err, fs) {
 
 [nodejs fs api](https://nodejs.org/dist/latest-v0.12.x/docs/api/fs.html)
 [cql docs](http://cassandra.apache.org/doc/latest/cql/index.html)
-[Type](http://datastax.github.io/nodejs-driver/features/datatypes/)
+[JS Type](http://datastax.github.io/nodejs-driver/features/datatypes/)

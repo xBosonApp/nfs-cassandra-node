@@ -3,13 +3,16 @@ require('./test-base.js')(tfs_main);
 
 function tfs_main(driver) {
   var fs, hdid;
+  var gid_uid = parseInt(10 * Math.random());
+  var mode    = parseInt(0x777 * Math.random());
+  var now     = Date.now();
 
   try {
     hdid = require('fs').readFileSync(__dirname + '/driver-id', {encoding:'UTF-8'});
   } catch(e) {
     throw new Error('Run "tdriver.js" first.');
   }
-  
+
   return {
 
     open_fs: function(test) {
@@ -22,7 +25,7 @@ function tfs_main(driver) {
     },
 
     mkdir1 : function(test) {
-      if (!test.wait('open_fs')) return;
+      test.wait('open_fs');
       fs.mkdir('/dir1', function(err) {
         if (err && err.code != 'EEXIST') test.assert(err);
         test.finish();
@@ -30,7 +33,7 @@ function tfs_main(driver) {
     },
 
     mkdir2 : function(test) {
-      if (!test.wait('mkdir1')) return;
+      test.wait('mkdir1')
       fs.mkdir('/dir2', function(err) {
         if (err && err.code != 'EEXIST') test.assert(err);
         test.finish();
@@ -38,7 +41,7 @@ function tfs_main(driver) {
     },
 
     mkdir2a : function(test) {
-      if (!test.wait('mkdir2')) return;
+      test.wait('mkdir2')
       fs.mkdir('/dir2/a', function(err) {
         if (err && err.code != 'EEXIST') test.assert(err);
         test.finish();
@@ -46,7 +49,7 @@ function tfs_main(driver) {
     },
 
     mkdir3 : function(test) {
-      if (!test.wait('mkdir2')) return;
+      test.wait('mkdir2')
       fs.mkdir('/dir1/a', function(err) {
         if (err && err.code != 'EEXIST') test.assert(err);
         test.finish();
@@ -54,7 +57,7 @@ function tfs_main(driver) {
     },
 
     mkdir4 : function(test) {
-      if (!test.wait('mkdir3')) return;
+      test.wait('mkdir3');
       fs.mkdir('/dir1/b', function(err) {
         if (err && err.code != 'EEXIST') test.assert(err);
         test.finish();
@@ -62,7 +65,7 @@ function tfs_main(driver) {
     },
 
     list1: function(test) {
-      if (!test.wait('mkdir4')) return;
+      test.wait('mkdir4');
       fs.readdir('/', function(err, list) {
         test.assert(err);
         test.log('/:', list);
@@ -71,7 +74,7 @@ function tfs_main(driver) {
     },
 
     list2: function(test) {
-      if (!test.wait('mkdir4')) return;
+      test.wait('mkdir4');
       fs.readdir('/dir1', function(err, list) {
         test.assert(err);
         test.log('/dir1:', list);
@@ -80,7 +83,7 @@ function tfs_main(driver) {
     },
 
     list3: function(test) {
-      if (!test.wait('mkdir2a')) return;
+      test.wait('mkdir2a');
       fs.readdir('/dir2', function(err, list) {
         test.assert(err);
         test.log('/dir2:', list);
@@ -89,7 +92,7 @@ function tfs_main(driver) {
     },
 
     rm_dir_fail: function(test) {
-      if (!test.wait('list2', 'mkdir2a')) return;
+      test.wait('list2', 'mkdir2a');
       fs.rmdir('/dir2', function(err) {
         test.assert(err != null, '非空文件夹不应该被删除');
         test.finish();
@@ -97,7 +100,7 @@ function tfs_main(driver) {
     },
 
     rm_dir: function(test) {
-      if (!test.wait('list2', 'mkdir2a', 'rm_dir_fail')) return;
+      test.wait('list2', 'mkdir2a', 'rm_dir_fail');
       fs.rmdir('/dir2/a', function(err) {
         test.assert(err);
         test.retest('list3');
@@ -105,8 +108,53 @@ function tfs_main(driver) {
       });
     },
 
+    'update time': function(test) {
+      test.wait('mkdir1');
+      fs.utimes('/dir1', now, now, function(err) {
+        // test.log(now);
+        test.assert(err);
+        test.finish();
+      });
+    },
+
+    'change-owner': function(test) {
+      test.wait('mkdir1');
+      fs.chown('/dir1', gid_uid, gid_uid, function(err) {
+        // test.log(gid_uid);
+        test.assert(err);
+        test.finish();
+      });
+    },
+
+    'change-mode' : function(test) {
+      test.wait('mkdir1');
+      fs.chmod('/dir1', mode, function(err) {
+        // test.log(mode);
+        test.assert(err);
+        test.finish();
+      });
+    },
+
+    'link-state' : function(test) {
+      test.wait('mkdir1', 'update time', 'change-owner', 'change-mode');
+      fs.lstat('/dir1', function(err, stat) {
+        test.assert(err);
+        if (stat) {
+          test.assert(stat.atime.getTime() == now, 'atime not change');
+          test.assert(stat.mtime.getTime() == now, 'mtime not change');
+          test.assert(stat.mode  == mode, 'mode not change');
+          test.assert(stat.gid == gid_uid, 'gid not change');
+          test.assert(stat.uid == gid_uid, 'uid not change');
+          //test.log('/dir1', stat);
+        }
+        test.finish();
+      });
+    },
+
     quit: function(test) {
-      if (!test.wait('list1', 'list2', 'rm_dir')) return;
+      test.wait('change-mode', 'update time', 'list1', 'list2',
+        'rm_dir', 'change-owner', 'link-state');
+
       fs.quit(function(err) {
         test.finish();
       });

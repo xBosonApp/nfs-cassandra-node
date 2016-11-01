@@ -18,6 +18,8 @@ var color = {
     "assertion_suffix"  : "\u001B[39m"
 };
 
+var WAIT_INTER = { message: 'wait function' };
+
 
 module.exports = run;
 
@@ -33,15 +35,17 @@ function run(conf, out) {
   var succ   = 0;
   var start  = Date.now();
   var logs   = [ '\n[ Test console log ]', LINE ];
-  var finished = {};
-
-  var event  = new Events();
-  event.start = _start;
+  var blank  = '  ';
+  var finished  = {};
+  var ploop_cnt = 0;
+  var eq_cnt    = 0;
+  var event     = new Events();
+  event.start   = _start;
 
   for (var n in conf) {
     n && step.push(n);
   }
-  total = step.length;
+  ploop_cnt = total = step.length;
 
 return event;
 
@@ -53,11 +57,25 @@ return event;
 
   function do_test() {
     var fnn = step.pop();
+    // console.log('!', fnn, eq_cnt, step.length, total);
+
+    if (ploop_cnt > step.length) {
+      ploop_cnt = step.length;
+      eq_cnt = 0;
+    } else {
+      if (++eq_cnt >= total + total) {
+        throw Error('循环依赖!');
+      }
+    }
+
     if (fnn) {
       var test = createTest(fnn);
       try {
         conf[fnn](test);
       } catch(e) {
+        if (e === WAIT_INTER) {
+          return;
+        }
         test.assert(e);
         test.finish();
       }
@@ -68,6 +86,7 @@ return event;
 
 
   function all_finish() {
+    blank = '';
     console.log();
     var msg = 'Test ' + succ + '/' + total
       + ' passed, use ' + (Date.now() - start) + 'ms.';
@@ -105,6 +124,8 @@ return event;
         throw new Error('config ' + name + ' not exists');
       }
       ++total;
+      ++ploop_cnt;
+      eq_cnt = 0;
       step.push(_name);
     }
 
@@ -136,7 +157,7 @@ return event;
         ++succ;
       }
       finished[name] = true;
-      do_test();
+      setImmediate(do_test);
     }
 
     function assert(value, msg) {
@@ -152,18 +173,14 @@ return event;
     }
 
     function wait(_name) {
+      if (_finish) throw new Error('what ? is finished!');
       if (arguments.length > 1) {
-        var ret = true;
         for (var i=arguments.length-1; i>=0; --i) {
-          if (! wait(arguments[i]) ) {
-            ret = false;
-            break;
-          }
+          wait(arguments[i]);
         }
-        return ret;
+        return;
       }
 
-      if (_finish) throw new Error('what ? is finished!');
       if (!_name) {
         throw new Error('must wait something');
       }
@@ -174,22 +191,33 @@ return event;
         throw new Error('cannot wait myself');
       }
       if (finished[_name]) {
-        return true;
+        return;
       }
       _finish = true;
       step.splice(0, 0, name);
       setImmediate(do_test);
-      return false;
+      // return false;
+      throw WAIT_INTER;
     }
   }
 
   function fail(msg) {
-    console.log('  ' + color.bold_prefix + color.error_prefix
+    console.log(blank + color.bold_prefix + color.error_prefix
       + FAIL + ' ' + msg + color.error_suffix + color.bold_suffix);
   }
 
   function ok(msg) {
-    console.log('  ' + color.ok_prefix
+    console.log(blank + color.ok_prefix
       + PASS + ' ' + msg + color.ok_suffix);
   }
 }
+
+process.on('uncaughtException', function (err) {
+  if (err === WAIT_INTER) {
+    return;
+  } if (err && err.context && err.context === WAIT_INTER) {
+    return;
+  }
+  console.error('uncaughtException', err);
+  process.exit(1);
+});

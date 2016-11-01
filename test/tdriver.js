@@ -17,7 +17,7 @@ function tdriver_main(driver) {
     },
 
     create_hd_nodelete: function(test) {
-      if (!test.wait('list_hd')) return;
+      test.wait('list_hd');
       if (len >= 2) {
         test.end();
         return;
@@ -30,8 +30,8 @@ function tdriver_main(driver) {
     },
 
     delete_hd: function(test) {
-      if (!test.wait('list_hd', 'create_hd_nodelete',
-        'create_hd', 'hd_state')) return;
+      test.wait('list_hd', 'create_hd_nodelete',
+        'create_hd', 'hd_state');
       driver.delete(hdinfo.hd_id, function(err) {
         test.assert(err);
         test.end();
@@ -39,7 +39,7 @@ function tdriver_main(driver) {
     },
 
     list_hd: function(test) {
-      if (!test.wait('create_hd')) return;
+      test.wait('create_hd');
       driver.list(function(err, list) {
         len = list.length;
         test.log('hd list:', list);
@@ -49,7 +49,7 @@ function tdriver_main(driver) {
     },
 
     hd_state: function(test) {
-      if (!test.wait('list_hd')) return;
+      test.wait('list_hd');
       driver.state(hdinfo.hd_id, function(err, info) {
         test.log('hd state:', info);
         test.assert(err);
