@@ -184,8 +184,30 @@ function tfs_main(driver) {
     },
 
 
+    'append' : function(test) {
+      test.wait('mkdir1');
+      var append_buf = Math.random() > 0.5 ? '-' : '_';
+      fs.appendFile('/dir1/append.txt', append_buf, function(err) {
+        test.assert(err);
+        test.finish();
+      });
+    },
+
+
+    'read-append' : function(test) {
+      test.wait('append');
+      fs.readFile('/dir1/append.txt', function(err, size, buffer) {
+        if (!err) {
+          test.log(buffer.toString());
+        }
+        test.assert(err);
+        test.finish();
+      });
+    },
+
+
     quit: function(test) {
-      test.wait('change-mode', 'update time', 'list1', 'list2',
+      test.wait('change-mode', 'update time', 'list1', 'list2', 'read-append',
         'rm_dir', 'change-owner', 'link-state', 'write-file', 'read-file');
 
       fs.quit(function(err) {
