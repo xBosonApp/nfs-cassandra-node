@@ -165,6 +165,7 @@ return event;
       if (util.isError(value)) {
         haserr = true;
         log(value.message || value);
+        value.stack && log(value.stack);
       } else if (!value) {
         if (!msg) return;
         haserr = true;

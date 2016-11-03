@@ -2,13 +2,16 @@ require('./test-base.js')(tfs_main);
 
 
 function tfs_main(driver) {
+  var hdfs    = require('fs')
   var fs, hdid;
-  var gid_uid = parseInt(10 * Math.random());
-  var mode    = parseInt(0x777 * Math.random());
+  var gid_uid = parseInt(10 * Math.random()) + 1;
+  var mode    = parseInt(0x777 * Math.random())+1;
   var now     = Date.now();
 
+  var filecontent = hdfs.readFileSync('d:\\ImageDB.ddf');
+
   try {
-    hdid = require('fs').readFileSync(__dirname + '/driver-id', {encoding:'UTF-8'});
+    hdid = hdfs.readFileSync(__dirname + '/driver-id', {encoding:'UTF-8'});
   } catch(e) {
     throw new Error('Run "tdriver.js" first.');
   }
@@ -151,9 +154,39 @@ function tfs_main(driver) {
       });
     },
 
+    'write-file': function(test) {
+      test.wait('mkdir1');
+      fs.writeFile('/dir1/t.txt', filecontent, function(err, size, buffer) {
+        test.assert(buffer != null, 'cannot get buffer');
+        test.assert(size != buffer.length, 'cannot write file');
+        test.assert(err);
+        test.finish();
+      });
+    },
+
+
+    'read-file': function(test) {
+      test.wait('write-file');
+      fs.readFile('/dir1/t.txt', function(err, size, buffer) {
+        if (!err) {
+          test.assert(size != buffer.length, 'size fail.');
+          test.assert(size != filecontent.length, 'size fail.');
+          for (var i=0; i<size; ++i) {
+            if (buffer[i] != filecontent[i]) {
+              test.assert(fail, 'file content fail');
+              break;
+            }
+          }
+        }
+        test.assert(err);
+        test.finish();
+      });
+    },
+
+
     quit: function(test) {
       test.wait('change-mode', 'update time', 'list1', 'list2',
-        'rm_dir', 'change-owner', 'link-state');
+        'rm_dir', 'change-owner', 'link-state', 'write-file', 'read-file');
 
       fs.quit(function(err) {
         test.finish();
