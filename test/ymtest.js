@@ -57,7 +57,7 @@ return event;
 
   function do_test() {
     var fnn = step.pop();
-    // console.log('!', fnn, eq_cnt, step.length, total);
+    //console.log('!', fnn, eq_cnt, step.length, total);
 
     if (ploop_cnt > step.length) {
       ploop_cnt = step.length;
@@ -169,7 +169,7 @@ return event;
       } else if (!value) {
         if (!msg) return;
         haserr = true;
-        log(msg);
+        log(msg || 'fail');
       }
     }
 

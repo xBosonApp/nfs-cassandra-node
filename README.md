@@ -11,7 +11,7 @@ fs api version on nodejs <=0.12.x
 
 # install
 
-`npm install fs-cassandra --save`
+`npm install fs-cassandra-lib --save`
 
 
 # Usage

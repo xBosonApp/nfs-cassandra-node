@@ -2,11 +2,13 @@ require('./test-base.js')(tfs_main);
 
 
 function tfs_main(driver) {
-  var hdfs    = require('fs')
   var fs, hdid;
-  var gid_uid = parseInt(10 * Math.random()) + 1;
-  var mode    = parseInt(0x777 * Math.random())+1;
-  var now     = Date.now();
+  var hdfs        = require('fs');
+  var gid_uid     = parseInt(10 * Math.random()) + 1;
+  var mode        = parseInt(0x777 * Math.random())+1;
+  var now         = Date.now();
+  var dir2remove_a= false;
+  var append_buf  = Math.random() > 0.5 ? '-' : '_';
 
   var filecontent = hdfs.readFileSync('d:\\ImageDB.ddf');
 
@@ -27,6 +29,7 @@ function tfs_main(driver) {
       });
     },
 
+
     mkdir1 : function(test) {
       test.wait('open_fs');
       fs.mkdir('/dir1', function(err) {
@@ -34,6 +37,7 @@ function tfs_main(driver) {
         test.finish();
       });
     },
+
 
     mkdir2 : function(test) {
       test.wait('mkdir1')
@@ -43,6 +47,7 @@ function tfs_main(driver) {
       });
     },
 
+
     mkdir2a : function(test) {
       test.wait('mkdir2')
       fs.mkdir('/dir2/a', function(err) {
@@ -50,6 +55,7 @@ function tfs_main(driver) {
         test.finish();
       });
     },
+
 
     mkdir3 : function(test) {
       test.wait('mkdir2')
@@ -59,6 +65,7 @@ function tfs_main(driver) {
       });
     },
 
+
     mkdir4 : function(test) {
       test.wait('mkdir3');
       fs.mkdir('/dir1/b', function(err) {
@@ -67,32 +74,42 @@ function tfs_main(driver) {
       });
     },
 
+
     list1: function(test) {
       test.wait('mkdir4');
       fs.readdir('/', function(err, list) {
         test.assert(err);
-        test.log('/:', list);
+        test.assert(list[0] == 'dir1', list);
+        test.assert(list[1] == 'dir2', list);
         test.finish();
       });
     },
+
 
     list2: function(test) {
       test.wait('mkdir4');
       fs.readdir('/dir1', function(err, list) {
         test.assert(err);
-        test.log('/dir1:', list);
+        test.assert(list[0] == 'a', list);
+        test.assert(list[1] == 'b', list);
         test.finish();
       });
     },
+
 
     list3: function(test) {
       test.wait('mkdir2a');
       fs.readdir('/dir2', function(err, list) {
         test.assert(err);
-        test.log('/dir2:', list);
+        if (dir2remove_a) {
+          list.forEach(function(f) {
+            test.assert(f != 'a', '/dir2/a  not remove');
+          });
+        }
         test.finish();
       });
     },
+
 
     rm_dir_fail: function(test) {
       test.wait('list2', 'mkdir2a');
@@ -102,14 +119,17 @@ function tfs_main(driver) {
       });
     },
 
+
     rm_dir: function(test) {
       test.wait('list2', 'mkdir2a', 'rm_dir_fail');
       fs.rmdir('/dir2/a', function(err) {
         test.assert(err);
+        dir2remove_a = true;
         test.retest('list3');
         test.finish();
       });
     },
+
 
     'update time': function(test) {
       test.wait('mkdir1');
@@ -120,6 +140,7 @@ function tfs_main(driver) {
       });
     },
 
+
     'change-owner': function(test) {
       test.wait('mkdir1');
       fs.chown('/dir1', gid_uid, gid_uid, function(err) {
@@ -129,6 +150,7 @@ function tfs_main(driver) {
       });
     },
 
+
     'change-mode' : function(test) {
       test.wait('mkdir1');
       fs.chmod('/dir1', mode, function(err) {
@@ -137,6 +159,7 @@ function tfs_main(driver) {
         test.finish();
       });
     },
+
 
     'link-state' : function(test) {
       test.wait('mkdir1', 'update time', 'change-owner', 'change-mode');
@@ -154,11 +177,12 @@ function tfs_main(driver) {
       });
     },
 
+
     'write-file': function(test) {
-      test.wait('mkdir1');
-      fs.writeFile('/dir1/t.txt', filecontent, function(err, size, buffer) {
+      test.wait('mkdir2');
+      fs.writeFile('/dir2/t.txt', filecontent, function(err, size, buffer) {
         test.assert(buffer != null, 'cannot get buffer');
-        test.assert(size != buffer.length, 'cannot write file');
+        test.assert(size == buffer.length, 'cannot write file ' + size);
         test.assert(err);
         test.finish();
       });
@@ -167,13 +191,16 @@ function tfs_main(driver) {
 
     'read-file': function(test) {
       test.wait('write-file');
-      fs.readFile('/dir1/t.txt', function(err, size, buffer) {
+      fs.readFile('/dir2/t.txt', function(err, size, buffer) {
         if (!err) {
-          test.assert(size != buffer.length, 'size fail.');
-          test.assert(size != filecontent.length, 'size fail.');
+          var showLen = 100;
+          test.assert(size == buffer.length, 'size fail1 ' + buffer.length);
+          test.assert(size == filecontent.length, 'size fail2 ' + filecontent.length);
           for (var i=0; i<size; ++i) {
             if (buffer[i] != filecontent[i]) {
-              test.assert(fail, 'file content fail');
+              test.assert(false, 'file content fail at ' + i + '['+size+']');
+              test.log('src:', filecontent.slice(i-showLen, i+showLen));
+              test.log('fs: ', buffer.slice(i-showLen, i+showLen));
               break;
             }
           }
@@ -185,9 +212,8 @@ function tfs_main(driver) {
 
 
     'append' : function(test) {
-      test.wait('mkdir1');
-      var append_buf = Math.random() > 0.5 ? '-' : '_';
-      fs.appendFile('/dir1/append.txt', append_buf, function(err) {
+      test.wait('mkdir2');
+      fs.appendFile('/dir2/append.txt', append_buf, function(err) {
         test.assert(err);
         test.finish();
       });
@@ -196,10 +222,29 @@ function tfs_main(driver) {
 
     'read-append' : function(test) {
       test.wait('append');
-      fs.readFile('/dir1/append.txt', function(err, size, buffer) {
-        if (!err) {
-          test.log(buffer.toString());
+      fs.readFile('/dir2/append.txt', function(err, size, buffer) {
+        if (buffer) {
+          // test.log(size, buffer.slice(size-5, size).toString());
+          test.assert(buffer[buffer.length-1] == append_buf[0]);
         }
+        test.assert(err);
+        test.finish();
+      });
+    },
+
+
+    'make-deled-txt' : function(test) {
+      test.wait('mkdir1');
+      fs.writeFile('/dir1/need-delete', 'delete', function(err, size, buffer) {
+        test.assert(err);
+        test.finish();
+      });
+    },
+
+
+    'remove-txt' : function(test) {
+      test.wait('make-deled-txt');
+      fs.unlink('/dir1/need-delete', function(err) {
         test.assert(err);
         test.finish();
       });
@@ -208,11 +253,13 @@ function tfs_main(driver) {
 
     quit: function(test) {
       test.wait('change-mode', 'update time', 'list1', 'list2', 'read-append',
-        'rm_dir', 'change-owner', 'link-state', 'write-file', 'read-file');
+        'rm_dir', 'change-owner', 'link-state', 'write-file', 'read-file',
+        'remove-txt');
 
       fs.quit(function(err) {
         test.finish();
       });
     },
+    
   };
 }

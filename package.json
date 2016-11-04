@@ -1,5 +1,5 @@
 {
-  "name": "fs-cassandra",
+  "name": "fs-cassandra-lib",
   "version": "0.1.1",
   "description": "like file system(fs) implemented based on Cassandra",
   "main": "index.js",
