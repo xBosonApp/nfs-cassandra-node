@@ -1,12 +1,16 @@
-# filesystem(fs) api
+# Net file system (fs) api
 
-fs api version on nodejs <=0.12.x
+fs api doc version on nodejs <=0.12.x
 
 每个 cassandra 的 keyspace 可以保存多个 driver; 把 driver 想象成硬盘,  
 每个硬盘都格式化成 ext4 格式, 可以在硬盘上打开文件系统(fs)进行操作.
 应该给 fs 一个独立的 keyspace.
 
-0.1.x 实现不支持用户权限/组权限, 不支持(软/硬)符号链接
+由于 NFS 可以有多个用户同时修改文件, 读取文件状态后进行操作是不安全的,
+由于没有文件锁, 文件内容和长度随时可以改变, cassandra 操作有延迟, 写入
+后立即读取未必是最新的状态
+
+0.1.x 实现不支持用户权限/组权限, 不支持(软/硬)符号链接.
 
 
 # install

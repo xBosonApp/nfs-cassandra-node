@@ -43,7 +43,9 @@ function run(conf, out) {
   event.start   = _start;
 
   for (var n in conf) {
-    n && step.push(n);
+    if (n && typeof conf[n] == 'function') {
+      step.push(n);
+    }
   }
   ploop_cnt = total = step.length;
 
