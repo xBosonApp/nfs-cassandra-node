@@ -1,7 +1,7 @@
-require('./test-base.js')(tfs_main);
+require('./test-base.js')(main);
 
 
-function tfs_main(driver) {
+function main(driver) {
   var fs, hdid, fd1;
   var hdfs        = require('fs');
   var gid_uid     = parseInt(10 * Math.random()) + 1;
