@@ -30,16 +30,18 @@ module.exports = run;
 function run(conf, out) {
   if (!out) out = console;
 
-  var step   = [];
-  var total  = 0;
-  var succ   = 0;
-  var start  = Date.now();
-  var logs   = [ '\n[ Test console log ]', LINE ];
-  var blank  = '  ';
+  var step      = [];
+  var total     = 0;
+  var succ      = 0;
+  var start     = Date.now();
+  var logs      = [ '\n[ Test console log ]', LINE ];
+  var log_len   = logs.length;
+  var blank     = '  ';
   var finished  = {};
   var ploop_cnt = 0;
   var eq_cnt    = 0;
   var event     = new Events();
+  var note      = conf.note || '';
   event.start   = _start;
 
   for (var n in conf) {
@@ -52,7 +54,7 @@ function run(conf, out) {
 return event;
 
   function _start() {
-    console.log('\n[ Begin Test ]');
+    console.log('\n[ Begin Test', note, ']');
     console.log(LINE);
     do_test();
   }
@@ -66,7 +68,7 @@ return event;
       eq_cnt = 0;
     } else {
       if (++eq_cnt >= total + total) {
-        throw Error('循环依赖!');
+        // throw Error('循环依赖!');
       }
     }
 
@@ -97,8 +99,10 @@ return event;
     } else {
       ok(msg);
     }
-    for (var i=0, e=logs.length; i<e; ++i) {
-      out.log(logs[i]);
+    if (logs.length > log_len) {
+      for (var i=0, e=logs.length; i<e; ++i) {
+        out.log(logs[i]);
+      }
     }
     event.emit('finish');
   }

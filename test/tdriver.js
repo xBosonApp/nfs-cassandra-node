@@ -1,6 +1,6 @@
 
 
-require('./test-base.js')(tdriver_main);
+module.exports = require('./test-base.js')(tdriver_main);
 
 
 function tdriver_main(driver) {
@@ -25,7 +25,8 @@ function tdriver_main(driver) {
       driver.create('hd1', function(err, info) {
         test.assert(err);
         test.end();
-        require('fs').writeFileSync(__dirname + '/driver-id', info.hd_id);
+        require('fs').writeFileSync(__dirname + '/driver-id',
+            info.hd_id, {flag : 'w'});
       });
     },
 

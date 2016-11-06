@@ -1,4 +1,4 @@
-require('./test-base.js')(tfs_main);
+module.exports = require('./test-base.js')(tfs_main);
 
 
 function tfs_main(driver) {
@@ -181,8 +181,30 @@ function tfs_main(driver) {
     'write-file': function(test) {
       test.wait('mkdir2');
       fs.writeFile('/dir2/t.txt', filecontent, function(err, size, buffer) {
-        test.assert(buffer != null, 'cannot get buffer');
-        test.assert(size == buffer.length, 'cannot write file ' + size);
+        test.assert(buffer != null, 'cannot get buffer:');
+        test.assert(size == buffer.length, 'cannot write file size:' + size);
+        test.assert(err);
+        test.finish();
+      });
+    },
+
+
+    'mkdir-for-rename': function(test) {
+      test.wait('write-file');
+      fs.unlink('/rename-target/t.doc', function() {
+        fs.rmdir('/rename-target', function() {
+          fs.mkdir('/rename-target', function(err) {
+            test.assert(err);
+            test.finish();
+          });
+        })
+      });
+    },
+
+
+    'rename' : function(test) {
+      test.wait('mkdir-for-rename');
+      fs.rename('/dir2/t.txt', '/rename-target/t.doc', function(err) {
         test.assert(err);
         test.finish();
       });
@@ -190,8 +212,8 @@ function tfs_main(driver) {
 
 
     'read-file': function(test) {
-      test.wait('write-file');
-      fs.readFile('/dir2/t.txt', function(err, size, buffer) {
+      test.wait('rename');
+      fs.readFile('/rename-target/t.doc', function(err, size, buffer) {
         if (!err) {
           var showLen = 100;
           test.assert(size == buffer.length, 'size fail1 ' + buffer.length);
@@ -260,6 +282,6 @@ function tfs_main(driver) {
         test.finish();
       });
     },
-    
+
   };
 }

@@ -1,4 +1,4 @@
-require('./test-base.js')(main);
+module.exports = require('./test-base.js')(main);
 
 
 function main(driver) {
@@ -91,8 +91,17 @@ function main(driver) {
       });
     },
 
+    fstat: function(test) {
+      test.wait('read');
+      fs.fstat(fd1, function(err, inf) {
+        test.assert(err);
+        inf && test.assert(inf.isFile());
+        test.finish();
+      });
+    },
+
     close_fd1: function(test) {
-      test.wait('open_fd1', 'change-time', 'write_buffer', 'read');
+      test.wait('open_fd1', 'change-time', 'write_buffer', 'read', 'fstat');
       fs.close(fd1, function(err) {
         test.assert(err);
         test.finish();

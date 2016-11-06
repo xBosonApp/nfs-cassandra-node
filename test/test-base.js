@@ -4,8 +4,10 @@ module.exports = function(fn) {
   var cassandra = require('cassandra-driver');
   var conlib    = require('configuration-lib');
   var test      = require('./ymtest.js');
+  var Event     = require('events');
   var client;
   var driver;
+  var eve = new Event();
 
 
   conlib.wait_init(function() {
@@ -16,8 +18,12 @@ module.exports = function(fn) {
 
     var t = test(fn(driver, client));
     t.on('finish', function() {
-      process.exit();
+      if (!eve.emit('finish')) {
+        process.exit();
+      }
     });
     t.start();
   });
-}
+
+  return eve;
+};
