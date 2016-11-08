@@ -5,16 +5,20 @@ module.exports = function(fn) {
   var conlib    = require('configuration-lib');
   var test      = require('./ymtest.js');
   var Event     = require('events');
-  var client;
-  var driver;
+  var client    = global.client;
+  var driver    = null;
   var eve = new Event();
 
 
   conlib.wait_init(function() {
     var conf = conlib.load();
 
-    client = new cassandra.Client(conf.cassandra);
+    if (!client) {
+      client = new cassandra.Client(conf.cassandra);
+      global.client = client;
+    }
     driver = fs_cass.open_driver(client);
+
 
     var t = test(fn(driver, client));
     t.on('finish', function() {

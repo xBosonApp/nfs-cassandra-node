@@ -34,6 +34,8 @@ function main(driver) {
   }
 
   return {
+    note: 'LINK',
+    
     open_fs: function(test) {
       driver.open_fs(hdid, function(err, _fs) {
         fs = _fs;

@@ -8,6 +8,8 @@ function tdriver_main(driver) {
   var len = 0;
 
   var d = {
+    note: 'Driver',
+    
     create_hd: function(test) {
       driver.create('test1', function(err, info) {
         hdinfo = info;

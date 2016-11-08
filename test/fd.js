@@ -17,8 +17,11 @@ function main(driver) {
   } catch(e) {
     throw new Error('Run "tdriver.js" first.');
   }
+
   var ret;
   return ret = {
+    note: 'Use fd',
+
     open_fs: function(test) {
       driver.open_fs(hdid, function(err, _fs) {
         fs = _fs;

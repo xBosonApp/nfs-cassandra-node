@@ -34,14 +34,14 @@ function run(conf, out) {
   var total     = 0;
   var succ      = 0;
   var start     = Date.now();
-  var logs      = [ '\n[ Test console log ]', LINE ];
+  var note      = conf.note || 'Test';
+  var logs      = [ '\n[ ' + note + ' console log ]', LINE ];
   var log_len   = logs.length;
   var blank     = '  ';
   var finished  = {};
   var ploop_cnt = 0;
   var eq_cnt    = 0;
   var event     = new Events();
-  var note      = conf.note || '';
   event.start   = _start;
 
   for (var n in conf) {
@@ -54,7 +54,7 @@ function run(conf, out) {
 return event;
 
   function _start() {
-    console.log('\n[ Begin Test', note, ']');
+    console.log('\n[ Begin', note, ']');
     console.log(LINE);
     do_test();
   }

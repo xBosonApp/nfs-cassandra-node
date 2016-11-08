@@ -10,7 +10,7 @@ function tfs_main(driver) {
   var dir2remove_a= false;
   var append_buf  = Math.random() > 0.5 ? '-' : '_';
 
-  var filecontent = hdfs.readFileSync('d:\\ImageDB.ddf');
+  var filecontent = new Buffer(4096*3 + 1);
 
   try {
     hdid = hdfs.readFileSync(__dirname + '/driver-id', {encoding:'UTF-8'});
@@ -18,7 +18,13 @@ function tfs_main(driver) {
     throw new Error('Run "tdriver.js" first.');
   }
 
+  for (var i=0,e=filecontent.length; i<e; ++i) {
+    filecontent[i] = parseInt(Math.random() * 255);
+  }
+
+
   return {
+    note : 'FS base',
 
     open_fs: function(test) {
       driver.open_fs(hdid, function(err, _fs) {
@@ -182,7 +188,8 @@ function tfs_main(driver) {
       test.wait('mkdir2');
       fs.writeFile('/dir2/t.txt', filecontent, function(err, size, buffer) {
         test.assert(buffer != null, 'cannot get buffer:');
-        test.assert(size == buffer.length, 'cannot write file size:' + size);
+        test.assert(size == buffer.length,
+          'cannot write file size: ' + size + '->' + buffer.length);
         test.assert(err);
         test.finish();
       });
@@ -194,7 +201,7 @@ function tfs_main(driver) {
       fs.unlink('/rename-target/t.doc', function() {
         fs.rmdir('/rename-target', function() {
           fs.mkdir('/rename-target', function(err) {
-            test.assert(err);
+            //test.assert(err);
             test.finish();
           });
         })
