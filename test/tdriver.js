@@ -9,7 +9,7 @@ function tdriver_main(driver) {
 
   var d = {
     note: 'Driver',
-    
+
     create_hd: function(test) {
       driver.create('test1', function(err, info) {
         hdinfo = info;
@@ -45,7 +45,7 @@ function tdriver_main(driver) {
       test.wait('create_hd');
       driver.list(function(err, list) {
         len = list.length;
-        test.log('hd list:', list);
+        test.log(list);
         test.assert(err);
         test.end();
       });
@@ -54,7 +54,7 @@ function tdriver_main(driver) {
     hd_state: function(test) {
       test.wait('list_hd');
       driver.state(hdinfo.hd_id, function(err, info) {
-        test.log('hd state:', info);
+        test.log(info);
         test.assert(err);
         test.end();
       });

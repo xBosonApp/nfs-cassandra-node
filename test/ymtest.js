@@ -137,13 +137,23 @@ return event;
 
     function log() {
       logs.push('  ' + name + ':');
-      var str = ['    '];
+      var str = ['    '], newline;
+      var obj, cc=0;
+
       for (var i=0, e=arguments.length; i<e; ++i) {
         if (!arguments[i]) continue;
-        var obj = JSON.stringify(arguments[i]);
-        for (var j=0, je=obj.length; j<je; ++j) {
+        if (typeof arguments[i] == 'string') {
+          obj = arguments[i];
+        } else {
+          obj = JSON.stringify(arguments[i], 0, 2);
+        }
+        for (var j=0, je=obj.length; j<je; ++j, ++cc) {
           str.push(obj[j]);
-          if (str.length > 75) {
+          if (cc > 75) newline = true;
+          if (obj[j] == '\n') {newline = true; str.pop(); }
+          if (newline) {
+            cc = 0;
+            newline = false;
             logs.push(str.join(''));
             str = ['    '];
           }

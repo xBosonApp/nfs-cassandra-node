@@ -35,7 +35,7 @@ function main(driver) {
 
   return {
     note: 'LINK',
-    
+
     open_fs: function(test) {
       driver.open_fs(hdid, function(err, _fs) {
         fs = _fs;
@@ -181,8 +181,28 @@ function main(driver) {
       });
     },
 
+    loop1: function(test) {
+      test.wait('stat1');
+      fs.writeFile('/testlink/loop2', 'a', function() {
+        fs.symlink('/testlink/loop2', '/testlink/loop1', function() {
+          fs.unlink('/testlink/loop2', function() {
+            fs.symlink('/testlink/loop1', '/testlink/loop2', cb(test));
+          });
+        });
+      });
+    },
+
+    loop2: function(test) {
+      test.wait('loop1');
+      fs.stat('/testlink/loop1', function(err, st) {
+        test.assert(err != null, 'not check symbolic link loop');
+        test.assert(err.code == 'ELOOP', 'not loop error.');
+        test.finish();
+      });
+    },
+
     quit: function(test) {
-      test.wait('stat2');
+      test.wait('stat2', 'loop2');
       fs.quit(function(err) {
         test.finish();
       });
