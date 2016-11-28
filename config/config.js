@@ -9,7 +9,7 @@ module.exports = {
   },
 
   cassandra : {
-    contactPoints : ['192.168.1.102'],
+    contactPoints : ['192.168.1.104'],
     keyspace      : 'fs',
     debug_log     : true,
   },
