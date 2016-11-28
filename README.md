@@ -23,28 +23,26 @@ fs api doc version on nodejs <=0.12.x
 # Usage
 
 所有带有 Sync 结尾的同步式函数都不支持, 调用时会抛出异常.
+修改 config/config.js 保证可以连接 cassandra/redis, 集群中的节点应该联入
+正确的 cassandra/redis 集群以实现正确的文件系统和消息通知.
 
 ```js
-var cassandra = require('cassandra-driver');
-var fs_cass = require('fs-cassandra');
-
-var client = new cassandra.Client({ contactPoints: ['h1', 'h2'], keyspace: 'ks1'});
-var driver = fs_cass.open_driver(client);
-
-
-// 与 nodejs 的 fs 对象相同
-driver.open_fs('driver-id', function(err, fs) {
-  fs.quit();
+fs_cass.open_driver(function(err, driver) {
+  driver.open_fs('driver-id', function(err, fs) {
+    // 与 nodejs 的 fs 对象相同
+    fs.quit();
+  });
 });
+
 ```
 
 # Api
 
-#### var fs_cass = require('fs-cassandra')
+#### var fs_cass = require('fs-cassandra-lib')
 
   导入库
 
-#### driver = fs_cass.open_driver(cassandra_client)
+#### fs_cass.open_driver((err, driver) => {})
 
   打开一个驱动, 参数是已经链接的 cassandra 客户端, 之后所有操作都是基于这个连接的.
 

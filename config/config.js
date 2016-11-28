@@ -13,4 +13,17 @@ module.exports = {
     keyspace      : 'fs',
     debug_log     : true,
   },
+
+  redis_conf: {
+	  host: "localhost",
+	  port: "6379",
+	  db: 2,
+	  options: {
+			// redis options see `redis README`
+	    enable_offline_queue: true,
+	    auth_pass: null
+	  },
+	  defaultExpiration: 7200
+	}
+
 };

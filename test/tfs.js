@@ -36,8 +36,24 @@ function tfs_main(driver) {
     },
 
 
-    mkdir1 : function(test) {
+    watch1: function(test) {
       test.wait('open_fs');
+      var w1 = fs.watch('/dir2', { recursive: true,
+          persistent:true }, function(type, fname) {
+        test.log(type, fname);
+      });
+      w1.on('error', function(err) {
+        test.assert(err);
+      });
+      var w2 = fs.watch('/dir1/need-delete', function(type, fname) {
+        test.log(type, fname);
+      });
+      test.finish();
+    },
+
+
+    mkdir1 : function(test) {
+      test.wait('open_fs', 'watch1');
       fs.mkdir('/dir1', function(err) {
         if (err && err.code != 'EEXIST') test.assert(err);
         test.finish();
@@ -283,7 +299,7 @@ function tfs_main(driver) {
     quit: function(test) {
       test.wait('change-mode', 'update time', 'list1', 'list2', 'read-append',
         'rm_dir', 'change-owner', 'link-state', 'write-file', 'read-file',
-        'remove-txt');
+        'remove-txt', 'watch1');
 
       fs.quit(function(err) {
         test.finish();

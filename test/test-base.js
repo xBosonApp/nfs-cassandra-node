@@ -10,16 +10,7 @@ module.exports = function(fn) {
   var eve = new Event();
 
 
-  conlib.wait_init(function() {
-    var conf = conlib.load();
-
-    if (!client) {
-      client = new cassandra.Client(conf.cassandra);
-      global.client = client;
-    }
-    driver = fs_cass.open_driver(client);
-
-
+  fs_cass.open_driver(function(err, driver) {
     var t = test(fn(driver, client));
     t.on('finish', function() {
       if (!eve.emit('finish')) {
