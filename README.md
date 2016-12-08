@@ -42,9 +42,10 @@ fs_cass.open_driver(function(err, driver) {
 
   导入库
 
-#### fs_cass.open_driver((err, driver) => {})
+#### fs_cass.open_driver([config, ] (err, driver) => {})
 
   打开一个驱动, 参数是已经链接的 cassandra 客户端, 之后所有操作都是基于这个连接的.
+  config => { redis_client, cassandra_client }
 
 #### driver.create(note, cb)
 

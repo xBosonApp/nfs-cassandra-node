@@ -4,7 +4,7 @@ module.exports = {
   cluster : false,
 
   logger : {
-    logLevel : 'ALL',
+    logLevel : 'INFO',
     log_dir  : 'logs',
   },
 
