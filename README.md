@@ -14,7 +14,6 @@ fs api doc version on nodejs <=0.12.x
 0.1.x 实现不支持用户权限/组权限, 不支持(软/硬)符号链接.
 
 
-
 # install
 
 `npm install fs-cassandra-lib --save`
@@ -35,6 +34,13 @@ fs_cass.open_driver(function(err, driver) {
 });
 
 ```
+
+# Console
+
+启动命令行模式, `help` 显示可用命令.
+
+`npm start`
+
 
 # Api
 
