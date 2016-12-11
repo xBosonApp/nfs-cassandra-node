@@ -14,12 +14,20 @@ function tfs_main(driver) {
 
   try {
     hdid = hdfs.readFileSync(__dirname + '/driver-id', {encoding:'UTF-8'});
+    hdid = hdid.trim();
   } catch(e) {
     throw new Error('Run "tdriver.js" first.');
   }
 
   for (var i=0,e=filecontent.length; i<e; ++i) {
     filecontent[i] = parseInt(Math.random() * 255);
+  }
+
+  function arrhas(arr, item) {
+    for (var i=0,e=arr.length; i<e; ++i) {
+      if (arr[i] == item) return true;
+    }
+    return false;
   }
 
 
@@ -101,8 +109,8 @@ function tfs_main(driver) {
       test.wait('mkdir4');
       fs.readdir('/', function(err, list) {
         test.assert(err);
-        test.assert(list[0] == 'dir1', list);
-        test.assert(list[1] == 'dir2', list);
+        test.assert(arrhas(list, 'dir1'), list);
+        test.assert(arrhas(list, 'dir2'), list);
         test.finish();
       });
     },
@@ -112,8 +120,8 @@ function tfs_main(driver) {
       test.wait('mkdir4');
       fs.readdir('/dir1', function(err, list) {
         test.assert(err);
-        test.assert(list[0] == 'a', list);
-        test.assert(list[1] == 'b', list);
+        test.assert(arrhas(list, 'a'), list);
+        test.assert(arrhas(list, 'b'), list);
         test.finish();
       });
     },
@@ -236,7 +244,7 @@ function tfs_main(driver) {
 
     'read-file': function(test) {
       test.wait('rename');
-      fs.readFile('/rename-target/t.doc', function(err, size, buffer) {
+      fs.readFile('/rename-target/t.doc', function(err, buffer, size) {
         if (!err) {
           var showLen = 100;
           test.assert(size == buffer.length, 'size fail1 ' + buffer.length);

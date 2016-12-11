@@ -103,7 +103,7 @@ function main(driver) {
 
     readfile: function(test) {
       test.wait('listdir');
-      fs.readFile('/testlink/slink1', function(err, len, buff) {
+      fs.readFile('/testlink/slink1', function(err, buff, len) {
         test.assert(buff && (buff.toString() == text), 'content fail.');
         test.assert(err);
         test.finish();
