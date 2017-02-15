@@ -2,25 +2,15 @@ var cassandra = require('cassandra-driver');
 var conlib    = require('configuration-lib');
 var tool      = require('./lib/tool.js');
 
-
+//
+// 功能框架
+//
 function get_cql(ks) {
 return [
-  "CREATE KEYSPACE IF NOT EXISTS " + ks + " WITH REPLICATION =\
+  "CREATE KEYSPACE IF NOT EXISTS " + ks + " WITH REPLICATION = \
       { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };",
 
   "use " + ks,
-
-  "CREATE TABLE IF NOT EXISTS driver_main (\
-      id          uuid PRIMARY KEY, \
-      create_tm   bigint,     \
-      note        text,       \
-      root        uuid,       \
-  );",
-
-  "CREATE TABLE IF NOT EXISTS driver_ref (\
-      id          uuid PRIMARY KEY, \
-      ref         counter           \
-  );",
 ];
 }
 

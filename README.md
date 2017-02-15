@@ -75,6 +75,10 @@ fs_cass.open_driver(function(err, driver) {
 
   在硬盘上打开文件系统api进行操作, 打开成功后 open_cnt+1; cb => (err, fs)
 
+#### driver.init_db(cb)
+
+  初始化数据库表, 在空的数据库上进行操作.
+
 #### fs.quit(cb); dirver.close_fs(fs);
 
   fs 扩展, 关闭打开的 fs, open_cnt-1, 即使在 cb 中发生错误, fs 也无法使用.
@@ -82,6 +86,6 @@ fs_cass.open_driver(function(err, driver) {
 
 # About
 
-[nodejs fs api](https://nodejs.org/dist/latest-v0.12.x/docs/api/fs.html)
-[cql docs](http://cassandra.apache.org/doc/latest/cql/index.html)
-[JS Type](http://datastax.github.io/nodejs-driver/features/datatypes/)
+* [nodejs fs api](https://nodejs.org/dist/latest-v0.12.x/docs/api/fs.html)
+* [cql docs](http://cassandra.apache.org/doc/latest/cql/index.html)
+* [JS Type](http://datastax.github.io/nodejs-driver/features/datatypes/)
