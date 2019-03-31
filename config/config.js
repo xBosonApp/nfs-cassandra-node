@@ -4,13 +4,13 @@ module.exports = {
   cluster : false,
 
   logger : {
-    logLevel : 'INFO',
+    logLevel : 'ALL',
     log_dir  : 'logs',
   },
 
   cassandra : {
-    contactPoints : ['192.168.1.104'],
-    keyspace      : 'fs',
+    contactPoints : ['127.0.0.1'],
+    keyspace      : 'nfs',
     debug_log     : true,
   },
 

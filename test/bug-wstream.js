@@ -1,12 +1,16 @@
 var fs_cass   = require('../');
 
-
-var driverid = '937f8100-1b2b-11e7-9d3d-03b23e58f867';
+// '937f8100-1b2b-11e7-9d3d-03b23e58f867';
+var driverid = '359ed850-1d93-11e7-adcf-411002e049ae'
 var wait;
 
 
 fs_cass.open_driver(function(err, driver) {
   driver.open_fs(driverid, function(err, fs) {
+    if (err) {
+      console.log(err);
+      process.exit(1);
+    }
     try {
       wait = wait_stream_end(function() {
         console.log('All over');
@@ -20,14 +24,28 @@ fs_cass.open_driver(function(err, driver) {
   });
 });
 
+var time = 0;
+setInterval(function() {
+  console.log('Use', ++time);
+}, 1000);
 
+
+var str = 'qwertyuioplkjhgfdsazxcvbnm1234567890!@#$%^&*()_+|~';
+var sl  = str.length;
+
+
+//
+// 写入流 bug 已经修复
+//
 function wstream(fs, drv) {
-  var w1 = one('1.txt', '1', 22);
+  var w1 = one('/a/1.txt', '1', 22);
   var w2 = one('2.txt', '2', 33);
+  var w3 = one('3.txt', null, 280);
 
   while (
        w2.write()
     || w1.write()
+    || w3.write()
   );
 
 
@@ -35,17 +53,19 @@ function wstream(fs, drv) {
     var w = fs.createWriteStream(filename);
     wait.add_fs_writer(w);
 
-    var blen = 1023;
+    var blen = 1011;
 
     var buf = Buffer.alloc(blen);
     for (var i=0; i<blen; ++i) {
-      buf[i] = ch;
+      buf[i] = ch || str[i % sl].charCodeAt();
     }
+    // console.log(buf)
 
-    var over = wait.create_hook();
 
     w.on('close', function() {
       var fail;
+      var over = wait.create_hook();
+
       fs.readFile(filename, function(e, c) {
         if (e) {
           console.log(filename, e);
@@ -65,7 +85,7 @@ function wstream(fs, drv) {
         }
 
         if (!fail) {
-          console.log('Success', filename);
+          console.log('Success', filename, c, '\n');
         } else {
           console.log('----->', c , '\n\n');
         }
@@ -117,6 +137,9 @@ function wait_stream_end(cb, timeout) {
   }
 
   function _over(e) {
+    if (e) {
+      console.log(e.message)
+    }
     if (--wait == 0) {
       end = true;
       cb()
